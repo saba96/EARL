@@ -2,8 +2,15 @@
 
 <!-- Official code for the paper *The Promise of RL for Autoregressive Image Editing (EARL)*. The code, models, and data will be released soon. -->
 
-
 This README provides an overview of how to prepare and tokenize data for EARL image editing using either a Hugging Face dataset or local data. It also covers SFT, RL training and evaluation steps.
+
+## Table of Contents
+- [Prerequisites - Installation](#prerequisites---installation)
+- [Tokenization](#tokenization)
+  - [Multi-GPU Tokenization](#accelerate-you-can-tokenize-with-multi-gpu)
+- [SFT Training](#sft-training)
+- [vLLM Inference](#vllm-inference)
+- [RL Training](#rl-training)
 
 ## Prerequisites - Installation
 
