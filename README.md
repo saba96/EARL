@@ -118,3 +118,36 @@ Notes:
 
 # RL Training
 
+The RL training process is implemented in single file (based on nano-aha-moment library) and resides in [`rl/`](./rl) directory. Here's what you need to know:
+
+1. **Requirements**: You'll need at least 8 GPUs - 4 for the reward model and 4 for RL training.
+2. **Setup**: Just follow the steps in [`rl/README.md`](./rl/README.md) to set up your environment and start training.
+3. **Training Process**: It's a two-step process:
+   - First, launch a reward server (can be shared across multiple training jobs)
+   - Then start your RL training with a simple command
+4. **Configuration**: We provide various config files for different training scenarios used in the paper.
+
+Here's a quick example of how to launch training:
+
+```bash
+# Set up environment variables
+export APP__DATA_DIR=...
+export APP__BASE_EXP_DIR=...
+
+# Step 1: Launch the reward server (needs 4 GPUs)
+vllm serve Qwen/Qwen2.5-VL-72B-Instruct \
+    --port 4877 \
+    --host 0.0.0.0 \
+    --dtype bfloat16 \
+    --tensor-parallel-size 4
+
+export APP__REWARD_FUNCTION_API_BASE=http://<reward_server_ip>:4877
+
+# Step 2: Start RL training (needs at least another 4 GPUs)
+python -m rl.simple_launch --nproc 4 \
+    rl/nano_aha_moment.py \
+    "rl/configs/sft_s__rl_c.jsonnet"
+```
+
+The RL training is designed to be user-friendly with clear configuration options and automatic checkpointing. Check out [`rl/README.md`](./rl/README.md) for detailed instructions!
+
