@@ -153,7 +153,7 @@ export APP__REWARD_FUNCTION_API_BASE=http://<reward_server_ip>:4877
 # Step 2: Start RL training (needs at least another 4 GPUs)
 python -m rl.simple_launch --nproc 4 \
     rl/nano_aha_moment.py \
-    "rl/configs/sft_s__rl_c.jsonnet"
+    rl/configs/sft_s__rl_sc.jsonnet
 ```
 
 The RL training is designed to be user-friendly with clear configuration options and automatic checkpointing. Check out [`rl/README.md`](./rl/README.md) for detailed instructions!
