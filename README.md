@@ -10,8 +10,9 @@ This README provides an overview of how to prepare and tokenize data for EARL im
   <!-- - [Multi-GPU Tokenization](#accelerate-you-can-tokenize-with-multi-gpu) -->
 - [SFT Training](#sft-training)
 - [RL Training](#rl-training)
-- [vLLM Inference](#vllm-inference)
-- - [Evaluation code]
+- [Evaluation](#evaluation)
+- [Try the model quickly: vLLM inference](#try-the-model-quickly-vllm-inference)
+
 ## Prerequisites - Installation
 
 ```bash
