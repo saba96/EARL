@@ -1,4 +1,4 @@
-# EARL: The Promise of RL for Autoregressive Image Editing
+# Emu3 Image Editing
 
 <!-- Official code for the paper *The Promise of RL for Autoregressive Image Editing (EARL)*. The code, models, and data will be released soon. -->
 
@@ -7,11 +7,11 @@ This README provides an overview of how to prepare and tokenize data for EARL im
 ## Table of Contents
 - [Prerequisites - Installation](#prerequisites---installation)
 - [Tokenization](#tokenization)
-  - [Multi-GPU Tokenization](#accelerate-you-can-tokenize-with-multi-gpu)
+  <!-- - [Multi-GPU Tokenization](#accelerate-you-can-tokenize-with-multi-gpu) -->
 - [SFT Training](#sft-training)
-- [vLLM Inference](#vllm-inference)
 - [RL Training](#rl-training)
-
+- [vLLM Inference](#vllm-inference)
+- - [Evaluation code]
 ## Prerequisites - Installation
 
 ```bash
@@ -30,7 +30,7 @@ For convenience, we provide pre-tokenized training data on Hugging Face 🤗. Th
 To tokenize your data, use the following command. Make sure the images are in PIL format, if not you can slightly modify the code to read the image in the provided format. You can specify which key in your dataset corresponds to each required component (original image, edited image, and text instruction). You **need** to provide list of which keys are part of CoT. **Please see ./scripts/tokenize.sh**:
 
 ```bash
-  python ./emu3/train_image_editing/prepare_data_from_hugging.py --dataset-name "$data_name" --output-path "$output_dir" --original-image-key "$original_image_key" --edit-instruction "$edit_instruction" --CoT-keys "${CoT_keys[@]}" --edited-image "$edited_image" --image-area $image_area --random-seed 42
+python ./emu3/train_image_editing/prepare_data_from_hugging.py --dataset-name "$data_name" --output-path "$output_dir" --original-image-key "$original_image_key" --edit-instruction "$edit_instruction" --CoT-keys "${CoT_keys[@]}" --edited-image "$edited_image" --image-area $image_area --random-seed 42
 ```
 
 Parameters:
@@ -44,29 +44,23 @@ Parameters:
 - `--edited-image`: The key/column name containing the edited/result images
 - `--image-area`: The target area for the images (in pixels)
 - `--random-seed`: Random seed for reproducibility
-- `--source`: Soruce HF or local.
+- `--source`: Source HF or local.
   - Default: `HF`
 
-
-To **accelerate** you can tokenize with multi-gpu:
+For multi-GPU tokenization, use the provided script:
 ```bash
-  CUDA_VISIBLE_DEVICES=0 python ./emu3/train_image_editing/prepare_data.py --dataset-name "$data_name" --output-path "$output_dir" --original-image-key "$original_image_key" --edit-instruction "$edit_instruction" --CoT-keys "${CoT_keys[@]}" --edited-image "$edited_image" --image-area $image_area --random-seed 42 &
-  CUDA_VISIBLE_DEVICES=1 python ./emu3/train_image_editing/prepare_data.py --dataset-name "$data_name" --output-path "$output_dir" --original-image-key "$original_image_key" --edit-instruction "$edit_instruction" --CoT-keys "${CoT_keys[@]}" --edited-image "$edited_image" --image-area $image_area --random-seed 75 &
-  CUDA_VISIBLE_DEVICES=2 python ./emu3/train_image_editing/prepare_data.py --dataset-name "$data_name" --output-path "$output_dir" --original-image-key "$original_image_key" --edit-instruction "$edit_instruction" --CoT-keys "${CoT_keys[@]}" --edited-image "$edited_image" --image-area $image_area --random-seed 96 &
-  CUDA_VISIBLE_DEVICES=3 python ./emu3/train_image_editing/prepare_data.py --dataset-name "$data_name" --output-path "$output_dir" --original-image-key "$original_image_key" --edit-instruction "$edit_instruction" --CoT-keys "${CoT_keys[@]}" --edited-image "$edited_image" --image-area $image_area --random-seed 97 &
-
-  wait
-
+. ./scripts/tokenize.sh
 ```
 
 ## SFT Training
+
 The trained models will be available at on Hugging Face 🤗: [URL to be released soon]
 
-For training choose choose between deepspeed stage zero 3 or deepspeed stage zero 3 offload based on your available resources. You can run one with one of following commands based on your choice. **Use ./scripts/tokenize.sh**:
+For training choose between deepspeed stage zero 3 or deepspeed stage zero 3 offload based on your available resources. Use:
 
 ```bash
-. ./scripts/t2i_sft.sh
-. ./scripts/t2i__sft_offload.sh
+. ./scripts/ie_sft.sh
+. ./scripts/ie__sft_offload.sh
 ```
 
 Ensure that the `DATAPATH` variable points to your **tokenized data** list from the previous step in the bash file, and adjust `EXP_NAME` and `--output_dir`.
@@ -87,16 +81,19 @@ If provided, each dataset is sampled based on its coefficient.
 If not provided, the script automatically oversamples smaller datasets to match the size of the largest dataset.
 **Important Note:** If you want automatic upsampling, remove the --coefficients argument when running the script.
 
+## RL Training
 
+The RL training is designed to be user-friendly with clear configuration options and automatic checkpointing. Check out [`rl/README.md`](./rl/README.md) for detailed instructions!
 
+## Evaluation
 
-# vLLM inference
+The evaluation code and scripts will be released soon. This will include:
+- Evaluation metrics and visualization tools
+- Support for multiple datasets (magicBrush, VisMin, OmniEdit, Aurora-Ag, I2EBench)
 
-
-For evaluation on image editing we support different datasets (magicBrush, VisMin, OmniEdit, Aurora-Ag, I2EBench). The code will be released soon.
+## Try the model quickly: vLLM inference
 
 1. Install vLLM
-
 ```bash
 pip install vllm
 ```
@@ -118,43 +115,10 @@ _MULTIMODAL_MODELS = {
 ```
 
 3. Run inference
+```bash
 . ./scripts/batch_eval.sh
+```
 
 Notes:
 - vLLM support infinite batch size, so technically you can pass entire validation set at once.
-
-# RL Training
-
-The RL training process is implemented in single file (based on nano-aha-moment library) and resides in [`rl/`](./rl) directory. Here's what you need to know:
-
-1. **Requirements**: You'll need at least 8 GPUs - 4 for the reward model and 4 for RL training.
-2. **Setup**: Just follow the steps in [`rl/README.md`](./rl/README.md) to set up your environment and start training.
-3. **Training Process**: It's a two-step process:
-   - First, launch a reward server (can be shared across multiple training jobs)
-   - Then start your RL training with a simple command
-4. **Configuration**: We provide various config files for different training scenarios used in the paper.
-
-Here's a quick example of how to launch training:
-
-```bash
-# Set up environment variables
-export APP__DATA_DIR=...
-export APP__BASE_EXP_DIR=...
-
-# Step 1: Launch the reward server (needs 4 GPUs)
-vllm serve Qwen/Qwen2.5-VL-72B-Instruct \
-    --port 4877 \
-    --host 0.0.0.0 \
-    --dtype bfloat16 \
-    --tensor-parallel-size 4
-
-export APP__REWARD_FUNCTION_API_BASE=http://<reward_server_ip>:4877
-
-# Step 2: Start RL training (needs at least another 4 GPUs)
-python -m rl.simple_launch --nproc 4 \
-    rl/nano_aha_moment.py \
-    rl/configs/sft_s__rl_sc.jsonnet
-```
-
-The RL training is designed to be user-friendly with clear configuration options and automatic checkpointing. Check out [`rl/README.md`](./rl/README.md) for detailed instructions!
 
