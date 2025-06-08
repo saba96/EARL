@@ -14,7 +14,6 @@ NEW_TOKENS=11000
 TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
 FORMATTED_MODEL_NAME=$(echo "$MODEL_PATH" | sed 's/\//_/g' | sed 's/-/_/g')
 SAVE_DIR_PREFIX="path/to/save/dir"
-SAVE_DIR_PREFIX="/network/scratch/s/saba.ahmadi/emu3/checkpoints/"
 SAVE_DIR="${SAVE_DIR_PREFIX}/${FORMATTED_MODEL_NAME}_${RANDOM_SEED}_${TIMESTAMP}_${MODE}_${SPLIT}"
 
 # Define the CoT keys for logging ground truth reasoning
