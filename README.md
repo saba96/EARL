@@ -118,6 +118,9 @@ If not provided, the script automatically oversamples smaller datasets to match 
 
 The RL training is designed to be user-friendly with clear configuration options and automatic checkpointing. Check out [`rl/README.md`](./rl/README.md) for detailed instructions!
 
+The current configs in [`rl/configs/`](./rl/configs/) are sample configurations. The final configurations used in the paper will be released soon.
+
+
 ## Evaluation
 
 The evaluation code and scripts will be released soon. This will include:
