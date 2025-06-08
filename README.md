@@ -1,6 +1,8 @@
 # EARL: The Promise of RL for Autoregressive Image Editing
 
-<!-- Official code for the paper *The Promise of RL for Autoregressive Image Editing (EARL)*. The code, models, and data will be released soon. -->
+Official code for the paper *The Promise of RL for Autoregressive Image Editing (EARL)*.
+
+![EARL](assets/teaser.png)
 
 This README provides an overview of how to prepare and tokenize data for EARL image editing using either a Hugging Face dataset or local data. It also covers SFT, RL training and evaluation steps.
 
