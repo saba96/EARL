@@ -6,11 +6,8 @@ import torch
 
 from emu3.train_image_editing.my_datasets_inference import Emu3RawDataset
 from torch.utils.data import DataLoader
-
-from vllm_processing_emu3 import (
-    CachedPrefixConstrainedLogitsProcessor,
-    Emu3Processor,
-)
+from emu3.mllm.utils import CachedPrefixConstrainedLogitsProcessor
+from emu3.mllm.processing_emu3 import Emu3Processor
 
 from vllm import LLM, SamplingParams
 
@@ -131,6 +128,7 @@ def main(args: argparse.Namespace):
     
     llm = LLM(
         model=args.model_path,
+        revision=args.revision,
         tokenizer=EMU_HUB,
         dtype="bfloat16",
         skip_tokenizer_init=True,
@@ -343,6 +341,7 @@ def parse_arguments() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Generate edited image based on an image and a text instruction.")
     parser.add_argument("-m", "--model_path", type=str, help="The model path to be evaluated.")
+    parser.add_argument("--revision", type=str, default="main", help="The revision of the model to be evaluated.")
     parser.add_argument("-s", "--save_dir", type=str, default="./", help="The directory to save the generated images.")
     parser.add_argument("-r", "--random_seed", type=int, default=42, help="The seed for sampling from data.")
     parser.add_argument("-n", "--sample_size", type=int, default=10, help="The random sample size from data.")
@@ -358,6 +357,7 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument('--original-image-key', type=str, help="Key for the original image in the dataset")
     parser.add_argument('--edit-instruction', type=str, help="Key for the edit instruction text in the dataset")
     parser.add_argument('--edited-image-key', type=str, help="Key for the edited image in the dataset")
+    parser.add_argument('--edit-type-key', type=str, help="Key for the edit type in the dataset")
     parser.add_argument("--batch_size", type=int, default=16, help="Index to ignore during processing.")
     parser.add_argument("--report_to_wandb", type=bool, default=False, help="Report to wandb, should be False for large sample size.")
     parser.add_argument("--visual_token_pattern", type=str, default="<|visual token {token_id:0>6d}|>", help="visual_token_pattern")

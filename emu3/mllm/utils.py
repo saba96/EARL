@@ -1,14 +1,14 @@
 # minor modification from:
 #   https://github.com/baaivision/Emu3/blob/main/emu3/mllm/processing_emu3.py
 #   https://github.com/baaivision/Emu3/blob/main/emu3/mllm/utils_emu3.py
-# Copied from:
-# https://github.com/FlagOpen/FlagScale/blob/main/flagscale/inference/processing_emu3.py
+#   https://github.com/FlagOpen/FlagScale/blob/main/flagscale/inference/processing_emu3.py
 
 
 import torch
-
-
 from transformers.utils import logging
+from transformers.generation import LogitsProcessor
+from typing import List, Optional, Sequence, Callable
+import math
 
 
 logger = logging.get_logger(__name__)
@@ -50,7 +50,7 @@ class Emu3PrefixConstrainedLogitsHelperFreeForm:
         if len(positions) == 1:
             start_position = positions[0].item()
         else:
-            raise ValueError(f"Expected at only one img_token occurrences, but found {len(positions)}.")
+            raise ValueError(f"Expected only one img_token occurrences, but found {len(positions)}.")
         height = self.height[batch_id] if self.height.shape[0] > 1 else self.height[0]
         width = self.width[batch_id] if self.width.shape[0] > 1 else self.width[0]
         offset = len(input_ids) - start_position
@@ -66,3 +66,24 @@ class Emu3PrefixConstrainedLogitsHelperFreeForm:
             return (self.pad_token, )
         else:
             return self.visual_tokens
+
+
+
+class CachedPrefixConstrainedLogitsProcessor(LogitsProcessor):
+
+    def __init__(self, prefix_allowed_tokens_fn: Callable[[int, torch.Tensor], List[int]], num_beams: int):
+        self._prefix_allowed_tokens_fn = prefix_allowed_tokens_fn
+        self._cached_prefix_allowed_tokens = None
+        self._cache_mask: Optional[torch.Tensor] = None
+
+    def __call__(self, input_ids: List[int], scores: torch.FloatTensor) -> torch.FloatTensor:
+        prefix_allowed_tokens = self._prefix_allowed_tokens_fn(0, input_ids)
+        if prefix_allowed_tokens == self._cached_prefix_allowed_tokens:
+            mask = self._cache_mask
+        else:
+            mask = torch.full_like(scores, -math.inf, device=scores.device)
+            mask[prefix_allowed_tokens] = 0
+            self._cached_prefix_allowed_tokens = prefix_allowed_tokens
+            self._cache_mask = mask
+
+        return scores + mask

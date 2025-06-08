@@ -72,51 +72,32 @@ class Emu3RawDataset(Dataset):
         self.EMU_HUB = "BAAI/Emu3-Stage1"
         self.VQ_HUB = "BAAI/Emu3-VisionTokenizer"
 
-        special_datasets = ["vismin", "aurora", "omniedit", "magicbrush", 
-                            "human", "jester", "motionfix", "object3dedit", "vision_synthesis"]
+        special_datasets = ["OmniEdit"]
         self.datasets = []
         n_samples_per_dataset = math.ceil(self.args.sample_size / len(args.dataset_names))
-        dataset_edit_types = {
-            "magicbrush": "no_edit_type",
-            "aurora": "action",
-            "vismin": ["attribute", "counting", "object", "relation"],
-            "omniedit": ["addition", "attribute_modification", "removal", "swap"],
-            "human": ["action", "add", "counting", "relation", "remove", "replace"]
-        }
         for dataset_name in args.dataset_names:
             dataset_chunks = []
             if any(x in dataset_name for x in special_datasets):
                 matching_sources = [x for x in special_datasets if x in dataset_name]
                 data_source = matching_sources[0]
                 if args.source == 'HF':
-                    with open("./emu3/train_image_editing/hf_token.txt", "r") as file:
-                        huggingface_token = file.read().strip()
-                    login(huggingface_token)
-                    base_dir = Path(snapshot_download(repo_id=dataset_name, repo_type="dataset"))
+                    # with open("./emu3/train_image_editing/hf_token.txt", "r") as file:
+                    #     huggingface_token = file.read().strip()
+                    # login(huggingface_token)
+                    if dataset_name == "TIGER-Lab/OmniEdit-Filtered-1.2M":
+                        base_dir = Path(snapshot_download(repo_id=dataset_name, repo_type="dataset", allow_patterns=[f"*{args.split}*.parquet"]))
+                    else:
+                        base_dir = Path(snapshot_download(repo_id=dataset_name, repo_type="dataset"))
                 else:
                     base_dir = Path(dataset_name)
 
                 parquet_files = sorted([str(file) for file in base_dir.rglob(f"**/*{args.split}*.parquet")])
 
                 print(f"Loading parquet files for dataset '{dataset_name}':")
-                # for file in parquet_files:
-                #     print(file)
                 dataset_list = []
                 for file in parquet_files:
-                    print(file)
-                    edit_type = "unknown"
-                    if data_source in dataset_edit_types:
-                        dataset_types = dataset_edit_types[data_source]
-                        if isinstance(dataset_types, list):
-                            for edit in dataset_types:
-                                if f"/{edit}/" in file or f"_{edit}_" in file:
-                                    edit_type = edit
-                                    break
-                        else:
-                            edit_type = dataset_types
-
                     dataset = DatasetHF.from_parquet(file)
-                    dataset = dataset.map(lambda example: example.update({"data_source": data_source, "edit_type": edit_type}) or example)
+                    dataset = dataset.map(lambda example: example.update({"data_source": data_source}) or example)
                     dataset_list.append(dataset)
 
                 if not dataset_list:
@@ -139,14 +120,18 @@ class Emu3RawDataset(Dataset):
     def __getitem__(self, index):
         data = self.datasets[index]
         id = data["id"]
+        if "OmniEdit" in data['data_source']:   
+            edit_instruction= data[self.args.edit_instruction][0]
+        else:
+            edit_instruction = data[self.args.edit_instruction]
         entry = {
             "idx": id,
             "original_image": data[self.args.original_image_key],
-            "edit_instruction": data[self.args.edit_instruction],
+            "edit_instruction": edit_instruction,
             "CoT": '',
             "edited_image": data[self.args.edited_image_key],
             "data_source": data['data_source'],
-            "edit_type": data['edit_type']
+            "edit_type": data[self.args.edit_type_key] if self.args.edit_type_key else "unknown"
         }
         prompt = entry["edit_instruction"]
 
