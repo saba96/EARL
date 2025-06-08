@@ -12,12 +12,12 @@ echo NGPUS is $NGPUS
 
 # Important: Adjust this, path to tokenized training data
 DATAPATH=(
-    "path/to/tokenized/data" # path to tokenized training data
+    "path/to/tokenized/data/list/tokenized_datalist.json" # path to tokenized training data
 )
 
 # Important: Adjust this, path to tokenized validation data
 VALPATH=(
-    "path/to/tokenized/validation/data" # path to tokenized validation data
+    "path/to/tokenized/validation/datalist/tokenized_datalist.json" # path to tokenized validation data
 )
 # Total number of samples to be sampled uniformly from all dataset, if you have 2 validation datasets and validation_size is set to 10 it samples 5 from each, seed is fixed.
 VALIDATION_SIZE=1000
@@ -26,10 +26,17 @@ VALIDATION_SIZE=1000
 #     'reasoning_verbose'
 # )
 
+# COEF=(
+#     1
+# )
+
 # adjust based on resolution: 256*256=65536
 IMAGE_AREA=65536
 # adjust based on resolution and thinking length: you can print max_length for few steps in my_datasets.py in training: each image (256/8)*((256/8)=1024, we have two images so 2048 tokens for images only
 MAX_POS_EMB=3000
+# Adjust this to your desired output directory
+OUTPUT_DIR="/path/to/output/directory"
+
 
 # TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
 unique_run_identifier_date="SFT_Experiment_name"
@@ -56,11 +63,12 @@ torchrun \
     --validation_size $VALIDATION_SIZE \
     --image_area $IMAGE_AREA \
     --max_position_embeddings $MAX_POS_EMB \
-    --output_dir "path/to/output/"${EXP_NAME} \
+    --output_dir "${OUTPUT_DIR}/${EXP_NAME}" \
     --bf16 True \
     --tf32 True \
     --num_train_epochs 10 \
     --per_device_train_batch_size 2 \
+    --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 8 \
     --eval_strategy steps \
     --evaluation_strategy steps \
@@ -80,6 +88,7 @@ torchrun \
     --logging_steps 1 \
     --gradient_checkpointing True \
     --dataloader_num_workers 4 \
-    --report_to wandb tensorboard \
+    --report_to wandb \
     --run_name ${EXP_NAME} \
-    # --cot_keys "${COT_KEYS[@]}" 
+    # --cot_keys "${COT_KEYS[@]}" \
+    # --coefficients "${COEF[@]}"
