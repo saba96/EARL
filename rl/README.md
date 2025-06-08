@@ -23,6 +23,8 @@ cd EARL
 
 Create a python (>=3.10) environment with torch 2.6 and cuda 12.4
 
+**Important**: You can skip this if you already installed EARL environment.
+
 ```bash
 python -m venv .rl_venv
 source .rl_venv/bin/activate
