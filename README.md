@@ -45,6 +45,7 @@ _MULTIMODAL_MODELS = {
 ```
 
 2. Run inference on Omniedit
+EARL on Hugging Face 🤗: [`Image-editing/imged_rl_grpo_sft.s_rl.sc`](https://huggingface.co/Image-editing/imged_rl_grpo_sft.s_rl.sc)
 ```bash
 . ./scripts/batch_eval.sh
 ```
