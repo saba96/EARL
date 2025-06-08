@@ -45,6 +45,8 @@ _MULTIMODAL_MODELS = {
 ```
 
 2. Run inference on Omniedit
+
+
 EARL on Hugging Face 🤗: [`Image-editing/imged_rl_grpo_sft.s_rl.sc`](https://huggingface.co/Image-editing/imged_rl_grpo_sft.s_rl.sc)
 ```bash
 . ./scripts/batch_eval.sh
@@ -56,6 +58,8 @@ Notes:
 ## Tokenization
 
 For convenience, we provide pre-tokenized training data on Hugging Face 🤗. The dataset will be available at: [URL to be released soon]
+
+
  We have tokenization code compatible with both Hugging Face datasets and local files. Follow the steps below to tokenize your data.
 
 To tokenize your data, use the following command. Make sure the images are in PIL format, if not you can slightly modify the code to read the image in the provided format. You can specify which key in your dataset corresponds to each required component (original image, edited image, and text instruction). You **need** to provide list of which keys are part of CoT. **Please see ./scripts/tokenize.sh**:
