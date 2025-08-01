@@ -7,9 +7,14 @@ Official code for the paper *The Promise of RL for Autoregressive Image Editing 
 This README provides an overview of how to prepare and tokenize data for EARL image editing using either a Hugging Face dataset or local data. It also covers SFT, RL training and evaluation steps.
 
 ## Table of Contents
+
 - [Prerequisites - Installation](#prerequisites---installation)
-- [Try the model quickly: vLLM inference](#try-the-model-quickly-vllm-inference)
-- [Tokenization](#tokenization)
+- [Model](#model)
+  - [Try the model quickly: vLLM inference](#try-the-model-quickly-vllm-inference)
+  - [Trained Models on HF 🤗](#trained-models-on-hf-)
+- [Dataset](#dataset)
+  - [Dataset on HF 🤗](#dataset-on-hf-)
+  - [Tokenization](#tokenization)
 - [SFT Training](#sft-training)
 - [RL Training](#rl-training)
 - [Evaluation](#evaluation)
@@ -28,8 +33,9 @@ pip install -r requirements.txt
 export PYTHONPATH=$(pwd)
 ```
 
+## Model
 
-## Try the model quickly: vLLM inference
+### Try the model quickly: vLLM inference
 1. Patch vLLM to support Emu3
 ```
 vim /path/to/venv/lib/python3.10/site-packages/vllm/model_executor/models/registry.py
@@ -49,7 +55,7 @@ _MULTIMODAL_MODELS = {
 2. Run inference on Omniedit
 
 
-EARL on Hugging Face 🤗: [`Image-editing/imged_rl_grpo_sft.s_rl.sc`](https://huggingface.co/Image-editing/imged_rl_grpo_sft.s_rl.sc)
+EARL on Hugging Face 🤗: [`Image-editing/imged_rl_grpo_sft.s_rl.sc`](https://huggingface.co/Image-editing/imged_rl_grpo_sft.s_rl.sc/tree/ckpt_001999)
 ```bash
 . ./scripts/batch_eval.sh
 ```
@@ -57,11 +63,14 @@ EARL on Hugging Face 🤗: [`Image-editing/imged_rl_grpo_sft.s_rl.sc`](https://h
 Notes:
 - vLLM support infinite batch size, so technically you can pass entire validation set at once.
 
-## Tokenization
+### Trained Models on HF 🤗
+all the trained models will be provided on Hugging Face 🤗. The models will be available at: [URL to be released soon].
 
+## Dataset
+### Dataset on HF 🤗
 For convenience, we provide pre-tokenized training data on Hugging Face 🤗. The dataset will be available at: [URL to be released soon]
 
-
+### Tokenization
  We have tokenization code compatible with both Hugging Face datasets and local files. Follow the steps below to tokenize your data.
 
 To tokenize your data, use the following command. Make sure the images are in PIL format, if not you can slightly modify the code to read the image in the provided format. You can specify which key in your dataset corresponds to each required component (original image, edited image, and text instruction). You **need** to provide list of which keys are part of CoT. **Please see ./scripts/tokenize.sh**:
@@ -126,5 +135,3 @@ The current configs in [`rl/configs/`](./rl/configs/) are sample configurations.
 The evaluation code and scripts will be released soon. This will include:
 - Evaluation metrics and visualization tools
 - Support for multiple datasets (magicBrush, VisMin, OmniEdit, Aurora-Ag, I2EBench)
-
-
