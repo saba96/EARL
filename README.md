@@ -1,5 +1,6 @@
 # EARL: The Promise of RL for Autoregressive Image Editing
 
+[![arXiv](https://img.shields.io/badge/arXiv-2508.01119-b31b1b.svg)](https://www.arxiv.org/abs/2508.01119)  
 Official code for the paper *The Promise of RL for Autoregressive Image Editing (EARL)*.
 
 ![EARL](assets/teaser.png)
