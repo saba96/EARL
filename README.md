@@ -65,7 +65,7 @@ Notes:
 - vLLM support infinite batch size, so technically you can pass entire validation set at once.
 
 ### Trained Models on HF 🤗
-all the trained models will be provided on Hugging Face 🤗. The models will be available at: [URL to be released soon].
+The models including SFT and post-training RL is now available at [EARL model collection on Hugging Face 🤗](https://huggingface.co/collections/mair-lab/earl-68463d983c20ede59af1345a).
 
 ## Dataset
 ### Dataset on HF 🤗
@@ -101,7 +101,7 @@ For multi-GPU tokenization, use the provided script:
 
 ## SFT Training
 
-The trained models will be available at on Hugging Face 🤗: [URL to be released soon]
+The trained models is available at on Hugging Face 🤗: [EARL model collection on Hugging Face 🤗](https://huggingface.co/collections/mair-lab/earl-68463d983c20ede59af1345a).
 
 For training choose between deepspeed stage zero 3 or deepspeed stage zero 3 offload based on your available resources. Use:
 
