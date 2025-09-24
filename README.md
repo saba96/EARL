@@ -1,7 +1,9 @@
 # EARL: The Promise of RL for Autoregressive Image Editing
 
+
 [![arXiv](https://img.shields.io/badge/arXiv-2508.01119-b31b1b.svg)](https://www.arxiv.org/abs/2508.01119)  
 Official code for the paper *The Promise of RL for Autoregressive Image Editing (EARL)*.
+🎉 **Exciting News**: EARL: The Promise of RL for Autoregressive Image Editing is accepted at NeurIPS 2025! 🎉
 
 ![EARL](assets/teaser.png)
 
@@ -19,6 +21,7 @@ This README provides an overview of how to prepare and tokenize data for EARL im
 - [SFT Training](#sft-training)
 - [RL Training](#rl-training)
 - [Evaluation](#evaluation)
+- [Citation](#citation)
 
 ## Prerequisites - Installation
 
@@ -65,11 +68,11 @@ Notes:
 - vLLM support infinite batch size, so technically you can pass entire validation set at once.
 
 ### Trained Models on HF 🤗
-all the trained models will be provided on Hugging Face 🤗. The models will be available at: [URL to be released soon].
+Trained models are available on Hugging Face 🤗: [mair-lab/earl collection](https://huggingface.co/collections/mair-lab/earl-68463d983c20ede59af1345a)
 
 ## Dataset
 ### Dataset on HF 🤗
-For convenience, we provide pre-tokenized training data on Hugging Face 🤗. The dataset will be available at: [URL to be released soon]
+For convenience, we provide pre-tokenized training data on Hugging Face 🤗: [mair-lab/earl-datasets](https://huggingface.co/datasets/mair-lab/earl-datasets)
 
 ### Tokenization
  We have tokenization code compatible with both Hugging Face datasets and local files. Follow the steps below to tokenize your data.
@@ -136,3 +139,16 @@ The current configs in [`rl/configs/`](./rl/configs/) are sample configurations.
 The evaluation code and scripts will be released soon. This will include:
 - Evaluation metrics and visualization tools
 - Support for multiple datasets (magicBrush, VisMin, OmniEdit, Aurora-Ag, I2EBench)
+
+## Citation
+
+If you use this code or paper in your research, please cite our work:
+
+```bibtex
+@inproceedings{earl2025,
+  title={The Promise of RL for Autoregressive Image Editing}, 
+  author={Saba Ahmadi and Rabiul Awal and Ankur Sikarwar and Amirhossein Kazemnejad and Ge Ya Luo and Juan A. Rodriguez and Sai Rajeswar and Siva Reddy and Christopher Pal and Benno Krojer and Aishwarya Agrawal},
+  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
+  year={2025}
+}
+```
