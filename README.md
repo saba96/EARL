@@ -1,9 +1,11 @@
 # EARL: The Promise of RL for Autoregressive Image Editing
 
+[![arXiv](https://img.shields.io/badge/arXiv-2508.01119-b31b1b.svg)](https://www.arxiv.org/abs/2508.01119) 
 
-[![arXiv](https://img.shields.io/badge/arXiv-2508.01119-b31b1b.svg)](https://www.arxiv.org/abs/2508.01119)  
-Official code for the paper *The Promise of RL for Autoregressive Image Editing (EARL)*.
 🎉 **Exciting News**: EARL: The Promise of RL for Autoregressive Image Editing is accepted at NeurIPS 2025! 🎉
+
+ 
+Official code for the paper *The Promise of RL for Autoregressive Image Editing (EARL)*.
 
 ![EARL](assets/teaser.png)
 
@@ -59,7 +61,7 @@ _MULTIMODAL_MODELS = {
 2. Run inference on Omniedit
 
 
-EARL on Hugging Face 🤗: [`Image-editing/imged_rl_grpo_sft.s_rl.sc`](https://huggingface.co/Image-editing/imged_rl_grpo_sft.s_rl.sc/tree/ckpt_001999)
+EARL on Hugging Face 🤗: [mair-lab/earl-sft-simple.rl-simple-n-complex-scaled](https://huggingface.co/mair-lab/earl-sft-simple.rl-simple-n-complex-scaled)
 ```bash
 . ./scripts/batch_eval.sh
 ```
@@ -104,9 +106,9 @@ For multi-GPU tokenization, use the provided script:
 
 ## SFT Training
 
-The trained models will be available at on Hugging Face 🤗: [URL to be released soon]
+Trained models are available on Hugging Face 🤗: [mair-lab/earl collection](https://huggingface.co/collections/mair-lab/earl-68463d983c20ede59af1345a)
 
-For training choose between deepspeed stage zero 3 or deepspeed stage zero 3 offload based on your available resources. Use:
+For training, choose between DeepSpeed Stage Zero 3 or DeepSpeed Stage Zero 3 offload based on your available resources. Use:
 
 ```bash
 . ./scripts/ie_sft.sh
