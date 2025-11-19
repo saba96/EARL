@@ -31,9 +31,14 @@ Other benchmark datasets will be automatically pulled from their respective HF r
 
 Configure the model path in the evaluation script to specify the model variant for assessment. Update the `MODEL_PATH` variable in `scripts/our_eval.sh` accordingly.
 
-Execute the evaluation pipeline:
+Execute the evaluation pipeline for our model:
 ```bash
 bash scripts/our_eval.sh
+```
+
+Execute the evaluation pipeline for other baselines:
+```bash
+bash scripts/baseline_eval.sh
 ```
 
 **Note:** All evaluation results will be saved to the `./results` directory.
@@ -46,7 +51,7 @@ Calculate the VIEScore metrics using the generated evaluation results:
 python gen_viescore.py --json_path {PATH_TO_RESULTS_JSON}
 ```
 
-Replace `{PATH_TO_RESULTS_JSON}` with the actual path to the JSON file generated in Step 2.
+Replace `{PATH_TO_RESULTS_JSON}` with the actual path to the corresponding JSON file generated in Step 2.
 
 Output: The computed VIEScore statistics will be written to {PATH_TO_RESULTS_JSON}_viescore_stats.json in the same directory as the input file.
 
