@@ -1,6 +1,7 @@
 MODEL_PATHS=(
     "mair-lab/sft-simple.rl-simple-n-complex"
 )
+
 USE_REVISION="False"
 REVISION=(
     ""
@@ -8,8 +9,8 @@ REVISION=(
 
 REASONING_INPUT="False"
 BATCH_SIZE=1100
-MODE="CE"
-SAVE_DIR=""
+MODE="E"
+SAVE_DIR="./results"
 
 python our_eval_on_aurora.py \
     --save_dir $SAVE_DIR \
