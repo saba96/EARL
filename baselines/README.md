@@ -50,6 +50,43 @@ Replace `{PATH_TO_RESULTS_JSON}` with the actual path to the JSON file generated
 
 Output: The computed VIEScore statistics will be written to {PATH_TO_RESULTS_JSON}_viescore_stats.json in the same directory as the input file.
 
+### VIEScore Metrics
+
+The output file contains mean and standard deviation statistics for the following metrics:
+
+```json
+{
+  "VIE_SC": {
+    "mean": <value>,
+    "std": <value>
+  },
+  "VIE_PQ": {
+    "mean": <value>,
+    "std": <value>
+  },
+  "VIE_ALL": {
+    "mean": <value>,
+    "std": <value>
+  },
+  "EDIT_SUCCESS": {
+    "mean": <value>,
+    "std": <value>
+  },
+  "OVEREDIT": {
+    "mean": <value>,
+    "std": <value>
+  },
+  "LOOKS_NATURAL": {
+    "mean": <value>,
+    "std": <value>
+  },
+  "NO_ARTIFACT": {
+    "mean": <value>,
+    "std": <value>
+  }
+}
+```
+
 ## Directory Structure
 
 ```
