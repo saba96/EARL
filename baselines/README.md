@@ -62,7 +62,8 @@ baselines/
 ├── benchmarks/          # Downloaded evaluation datasets
 ├── results/             # Evaluation outputs and metrics
 └── scripts/
-    └── our_eval.sh      # Main evaluation script
+    └── our_eval.sh           # Our Model's evaluation script
+    └── baseline_eval.sh      # Baseline evaluation script
 ```
 
 ## Citation
