@@ -3,7 +3,6 @@ os.environ["VLLM_USE_V1"] = "0"
 
 import sys
 sys.path.append('../')
-sys.path.append('../VIEScore/src/')
 sys.path.append('../evaluation/')
 
 import gc
@@ -16,9 +15,7 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 from argparse import Namespace
-from constants import openai_key
 
-from viescore.metric import VIEScore
 from utils import plot_overview
 from utils import pad_tensor_list, smart_resize
 from utils import extract_bboxes_and_keypoints, visualize_bboxes_and_keypoints
@@ -230,8 +227,7 @@ def eval_automatic(OUR_MODEL_ARGS):
                 responses = llm.generate(inputs, sampling_params=list_sampling_params)
                 # Corrected code to flatten responses
                 flattened_responses = [sample.token_ids for resp in responses for sample in resp.outputs]
-                print(len(responses), len(flattened_responses))
-                print(responses, flattened_responses)
+
                 decoded_outputs = processor.batch_decode(
                     flattened_responses,
                     skip_special_tokens=False
@@ -265,7 +261,6 @@ def eval_automatic(OUR_MODEL_ARGS):
                     batch_grounding_images.append(grounding_img)
 
 
-            print("Here at 320")
             batch_overview_paths = []
             batch_input_image_paths = []
             batch_edited_image_paths = []
@@ -301,7 +296,6 @@ def eval_automatic(OUR_MODEL_ARGS):
                 batch_grounding_image_paths.append(grounding_image_path)
 
 
-            print("Here at 357")
             for batch_sample_idx in tqdm(range(len(batch_input_images)), desc="Processing batches for wandb"):
                 # Retrieve saved paths and other data for this sample
                 overview_path = batch_overview_paths[batch_sample_idx]

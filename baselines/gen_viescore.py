@@ -7,7 +7,7 @@ sys.path.append('../VIEScore/src/')
 sys.path.append('../evaluation/')
 
 from constants import openai_key
-from viescore.metric import VIEScore
+from VIEScore.metric import VIEScore
 from PIL import Image
 import json
 import numpy as np

@@ -7,7 +7,7 @@ from .utils import (
     mllm_output_to_dict
 )
 import math
-from viescore.metric import vie_prompts as vp
+from VIEScore.metric import vie_prompts as vp
 
 class VIEScore:
     def __init__(self, backbone="gpt4o", task="t2i", key_path=None) -> None:
