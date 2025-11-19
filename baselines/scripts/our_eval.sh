@@ -1,5 +1,6 @@
 MODEL_PATHS=(
     "mair-lab/sft-simple.rl-simple-n-complex"
+    "mair-lab/earl-sft-simple.rl-simple-n-complex-scaled"
 )
 
 USE_REVISION="False"
