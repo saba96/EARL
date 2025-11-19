@@ -1,4 +1,4 @@
-SAVE_DIR=""
+SAVE_DIR="./results"
 
 BASELINE=(
     "InstructPix2Pix"
