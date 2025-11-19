@@ -3,7 +3,6 @@ os.environ["VLLM_USE_V1"] = "0"
 
 import sys
 sys.path.append('../')
-sys.path.append('../VIEScore/src/')
 sys.path.append('../evaluation/')
 
 import gc
@@ -16,15 +15,13 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 from argparse import Namespace
-from constants import openai_key
 
-from viescore.metric import VIEScore
 from utils import plot_overview
 from utils import pad_tensor_list, smart_resize
 from utils import extract_bboxes_and_keypoints, visualize_bboxes_and_keypoints
 from utils import update_bbox_in_text
 
-from benchmarks import init_omniedit
+from benchmarks import init_vismin_gold
 
 from vllm_processing_emu3 import (
     CachedPrefixConstrainedLogitsProcessor,
@@ -70,43 +67,47 @@ def cleanup():
 
 def eval_automatic(OUR_MODEL_ARGS):
     baseline = "OurModel"
-    BENCHMARK = "OmniEdit_got"
+    BENCHMARK = "VisMin"
     EVAL_TABLE = "evaluation_table"
 
-    data = init_omniedit()
+    data = init_vismin_gold()
 
-    omniedit_id_dict = {}
+    # omniedit_id_dict = {}
+    id_dict = {}
     instruction_dict = {}
     image_dict = {}
+    # source_dict = {}
     gt_edited_image_dict = {}
+    # coords_dict = {}
+    # reasoning_concise_dict = {}
+    # reasoning_super_concise_dict = {}
+    # reasoning_verbose_dict = {}
     task_type_dict = {}
 
     for sample in data:
-        image = sample["src_img"]
-        instruction = sample["edited_prompt_list"][0]
-        gt_edited_image = sample["edited_img"]
+        image = sample["source_image"]
+
+        instruction = sample["edit_instruction"]
+        instruction = instruction.replace('edit_instruction: ', '')
+
+        edited_image = sample["edited_image"]
+        idxx = sample["id"]
         task_type = sample["task"]
-        omniedit_id = sample["omni_edit_id"]
 
-
-        img_size = str(image.size)
-        
-        # if RESIZE:
-        #     image = smart_resize(image, RESOLUTION*RESOLUTION)
-        #     gt_edited_image = smart_resize(gt_edited_image, RESOLUTION*RESOLUTION)
+        img_size = str(image.size)        
 
         if img_size not in list(image_dict.keys()):
             image_dict[img_size] = [image.convert("RGB")]
             instruction_dict[img_size] = [instruction]
-            gt_edited_image_dict[img_size] = [gt_edited_image.convert("RGB")]
+            gt_edited_image_dict[img_size] = [edited_image]
+            id_dict[img_size] = [idxx]
             task_type_dict[img_size] = [task_type]
-            omniedit_id_dict[img_size] = [omniedit_id]
         else:
             image_dict[img_size].append(image.convert("RGB"))
             instruction_dict[img_size].append(instruction)
-            gt_edited_image_dict[img_size].append(gt_edited_image.convert("RGB"))
+            gt_edited_image_dict[img_size].append(edited_image)
+            id_dict[img_size].append(idxx)
             task_type_dict[img_size].append(task_type)
-            omniedit_id_dict[img_size].append(omniedit_id)
 
     
     OUR_MODEL_ARGS.save_dir = f'{SAVE_DIR}/results/{baseline}/{OUR_MODEL_ARGS.model_path.split("/")[-1]}_{OUR_MODEL_ARGS.revision}/{BENCHMARK}'
@@ -132,9 +133,8 @@ def eval_automatic(OUR_MODEL_ARGS):
     images_dict = {"All_Sizes": [img for img_list in image_dict.values() for img in img_list]}
     instructions_dict = {"All_Sizes": [instr for instr_list in instruction_dict.values() for instr in instr_list]}
     gt_edited_images_dict = {"All_Sizes": [img for img_list in gt_edited_image_dict.values() for img in img_list]}
-    task_type_dict = {"All_Sizes": [task for task_list in task_type_dict.values() for task in task_list]}
-    omniedit_id_dict = {"All_Sizes": [id for id_list in omniedit_id_dict.values() for id in id_list]}
-
+    ids_dict = {"All_Sizes": [idxx for idxx_list in id_dict.values() for idxx in idxx_list]}
+    task_types_dict = {"All_Sizes": [task_type for task_type_list in task_type_dict.values() for task_type in task_type_list]}
 
     os.makedirs(f'{SAVE_DIR}/results/{baseline}/{OUR_MODEL_ARGS.model_path.split("/")[-1]}_{OUR_MODEL_ARGS.revision}/{BENCHMARK}', exist_ok=True)
 
@@ -159,8 +159,9 @@ def eval_automatic(OUR_MODEL_ARGS):
         input_images = images_dict[img_size]
         edit_instructions = instructions_dict[img_size]
         gt_edited_images = gt_edited_images_dict[img_size]
-        task_type = task_type_dict[img_size]
-        omniedit_id = omniedit_id_dict[img_size]
+        ids = ids_dict[img_size]
+        taskkk = task_types_dict[img_size]
+        
         for batch_idx, i in tqdm(enumerate(range(0, len(input_images), BATCH_SIZE)), desc="Processing batches"):
             print(f"Processing batch {batch_idx+1} of {(len(input_images) // BATCH_SIZE)+1} batches")
 
@@ -168,14 +169,14 @@ def eval_automatic(OUR_MODEL_ARGS):
                 batch_input_images = input_images[i:]
                 batch_edit_instructions = edit_instructions[i:]
                 batch_gt_edited_images = gt_edited_images[i:]
-                batch_task_type = task_type[i:]
-                batch_omniedit_id = omniedit_id[i:]
+                batch_ids = ids[i:]
+                batch_tasks = taskkk[i:]
             else:
                 batch_input_images = input_images[i:i + BATCH_SIZE]
                 batch_edit_instructions = edit_instructions[i:i + BATCH_SIZE]
                 batch_gt_edited_images = gt_edited_images[i:i + BATCH_SIZE]
-                batch_task_type = task_type[i:i + BATCH_SIZE]
-                batch_omniedit_id = omniedit_id[i:i + BATCH_SIZE]
+                batch_ids = ids[i:i + BATCH_SIZE]
+                batch_tasks = taskkk[i:i + BATCH_SIZE]
 
             
             with torch.inference_mode():
@@ -241,8 +242,7 @@ def eval_automatic(OUR_MODEL_ARGS):
                 responses = llm.generate(inputs, sampling_params=list_sampling_params)
                 # Corrected code to flatten responses
                 flattened_responses = [sample.token_ids for resp in responses for sample in resp.outputs]
-                print(len(responses), len(flattened_responses))
-                print(responses, flattened_responses)
+
                 decoded_outputs = processor.batch_decode(
                     flattened_responses,
                     skip_special_tokens=False
@@ -253,8 +253,7 @@ def eval_automatic(OUR_MODEL_ARGS):
                 batch_grounding_images = []
 
                 for idx_i, mm_list in enumerate(decoded_outputs):    
-                    input_image = batch_input_images[idx_i]   
-                    input_image = smart_resize(input_image, 256*256)        
+                    input_image = batch_input_images[idx_i]           
 
                     edited_image = None
                     generated_text = ''
@@ -277,7 +276,6 @@ def eval_automatic(OUR_MODEL_ARGS):
                     batch_grounding_images.append(grounding_img)
 
 
-            print("Here at 320")
             batch_overview_paths = []
             batch_input_image_paths = []
             batch_edited_image_paths = []
@@ -303,7 +301,7 @@ def eval_automatic(OUR_MODEL_ARGS):
                 smart_resize(batch_input_images[batch_sample_idx], 256*256).save(input_image_path)
                 batch_edited_images[batch_sample_idx].save(edited_image_path)
                 smart_resize(batch_gt_edited_images[batch_sample_idx], 256*256).save(gt_edited_image_path)
-                smart_resize(batch_grounding_images[batch_sample_idx], 256*256).save(grounding_image_path)
+                batch_grounding_images[batch_sample_idx].save(grounding_image_path)
                 
                 batch_overview_paths.append(overview_path)
                 batch_input_image_paths.append(input_image_path)
@@ -313,7 +311,6 @@ def eval_automatic(OUR_MODEL_ARGS):
                 batch_grounding_image_paths.append(grounding_image_path)
 
 
-            print("Here at 357")
             for batch_sample_idx in tqdm(range(len(batch_input_images)), desc="Processing batches for wandb"):
                 # Retrieve saved paths and other data for this sample
                 overview_path = batch_overview_paths[batch_sample_idx]
@@ -327,24 +324,30 @@ def eval_automatic(OUR_MODEL_ARGS):
                     "overview": overview_path, 
                     "original_image": input_image_path,
                     "edit_instruction": batch_edit_instructions[batch_sample_idx],
+                    # "gt_reasoning": batch_reasoning_super_concise[batch_sample_idx],
+                    # "coord": batch_coords[batch_sample_idx] if eval_split == "train" else '',
                     "reasoning": batch_generated_cot[batch_sample_idx],
                     "edited_image": edited_image_path,
                     "grounding_image": grounding_image_path,
+                    # "source": batch_sources[batch_sample_idx],
                     'gt_edited_image': gt_edited_image_path,
-                    'id': batch_omniedit_id[batch_sample_idx],
-                    'task': batch_task_type[batch_sample_idx],
+                    'id': batch_ids[batch_sample_idx],
+                    'task': batch_tasks[batch_sample_idx],
                 }
                 wandb_batch_table_rows.append(
                     [
                         wandb.Image(overview_path), # Log path instead of image object
                         wandb.Image(input_image_path), 
                         batch_edit_instructions[batch_sample_idx], 
+                        # batch_reasoning_super_concise[batch_sample_idx],
+                        # batch_coords[batch_sample_idx] if eval_split == "train" else '',
                         batch_generated_cot[batch_sample_idx],
                         wandb.Image(edited_image_path), 
-                        wandb.Image(grounding_image_path) if grounding_image_path else None, 
+                        wandb.Image(grounding_image_path) if grounding_image_path else None,
+                        # batch_sources[batch_sample_idx],
                         wandb.Image(gt_edited_image_path),
                         wandb_report_row['id'],
-                        wandb_report_row['task'],
+                        wandb_report_row['task']
                     ]
                 )
 
@@ -354,8 +357,8 @@ def eval_automatic(OUR_MODEL_ARGS):
                 if batch_sample_idx == len(batch_input_images) - 1:
                     uniq_id += len(batch_input_images)
 
-            columns = ["overview", "original_image", "edit_instruction", "reasoning", "edited_image", "grounding_image", "gt_edited_image",
-                        "id", "task"]
+            columns = ["overview", "original_image", "edit_instruction", "reasoning", "edited_image", "grounding_image", "gt_edited_image", 
+                       "id", "task"]
             # columns = ["overview", "original_image", "edit_instruction", "gt_cot", "coord", "reasoning", "edited_image",
             #             "id", "task"]
 
@@ -378,7 +381,7 @@ def eval_automatic(OUR_MODEL_ARGS):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--save_dir", type=str, default="/network/scratch/a/ankur.sikarwar/image_editing_baselines_automatic", help="Directory to save results")
+    parser.add_argument("--save_dir", type=str, default="", help="Directory to save results")
     parser.add_argument("--batch_size", type=int, default=500, help="Batch size to use for evaluation")
     parser.add_argument("--mode", type=str, default="E", help="Mode to use for evaluation")
     # parser.add_argument("--split", type=str, default="train", help="Split to use for evaluation")
@@ -417,6 +420,8 @@ if __name__ == "__main__":
                 )
 
                 print(f"Evaluating {model_path}")
+                # print(f"Split: {args.split}")
+                # print(f"Size: {args.size}")
                 print("OUR_MODEL_ARGS: ", OUR_MODEL_ARGS)
 
                 eval_automatic(OUR_MODEL_ARGS=OUR_MODEL_ARGS)
@@ -440,5 +445,6 @@ if __name__ == "__main__":
             )
 
             print(f"Evaluating {model_path}")
+            # print(f"Split: {args.split}")
 
             eval_automatic(OUR_MODEL_ARGS=OUR_MODEL_ARGS)
