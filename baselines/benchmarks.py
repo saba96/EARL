@@ -27,7 +27,7 @@ def init_omniedit():
 
 
 def init_magicbrush():
-    magicbrush_data_path = "./magicbrush-test-00000.parquet"
+    magicbrush_data_path = "./benchmarks/magicbrush-test-00000.parquet"
     
     if not os.path.exists(magicbrush_data_path):
         images_root = "./MagicBrush_benchmark/images"
@@ -114,7 +114,7 @@ def init_i2ebench():
     from datasets import Dataset, Features, Value, Image as HFImage, load_dataset
     
     # Path for the saved parquet file
-    i2ebench_data_path = "./i2ebench-dataset.parquet"
+    i2ebench_data_path = "./benchmarks/i2ebench-dataset.parquet"
     
     # Check if the parquet file already exists
     if os.path.exists(i2ebench_data_path):
