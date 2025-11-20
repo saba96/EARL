@@ -317,7 +317,8 @@ class Emu3Processor(ProcessorMixin):
     def get_assistant_prefill(self, h, w, mode: str) -> str:
         """Get the appropriate assistant prefill based on the mode."""
         if mode == "E":
-            return self.tokenizer.boi_token
+            # return self.tokenizer.boi_token
+            return (self.tokenizer.boi_token + self.prefix_template.format(H=h, W=w))
         elif mode == "CE":
             return " Let's think step by step. <|start thinking|>"
         elif mode == "mixed":
