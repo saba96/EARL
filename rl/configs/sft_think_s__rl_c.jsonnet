@@ -39,7 +39,7 @@
     tokenizer_path: "BAAI/Emu3-Stage1",
 
     // Assistant prefill prompt
-    // assistant_prefill: "#image start\\n", // Forced no-reasoning mode
+    // assistant_prefill: "<|image start|>", // Forced no-reasoning mode
     assistant_prefill: "Let's think step by step. <|start thinking|>\\n", // Forced reasoning mode
 
     // Training hyperparameters
