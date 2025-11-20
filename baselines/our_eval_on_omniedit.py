@@ -3,7 +3,6 @@ os.environ["VLLM_USE_V1"] = "0"
 
 import sys
 sys.path.append('../')
-sys.path.append('../VIEScore/src/')
 sys.path.append('../evaluation/')
 
 import gc
