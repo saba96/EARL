@@ -16,7 +16,6 @@ from PIL import Image
 from tqdm import tqdm
 from argparse import Namespace
 
-from viescore.metric import VIEScore
 from utils import plot_overview
 from utils import pad_tensor_list, smart_resize
 from utils import extract_bboxes_and_keypoints, visualize_bboxes_and_keypoints
@@ -209,7 +208,6 @@ def eval_automatic(baseline_name):
                     generator=torch.Generator(device="cpu").manual_seed(222)
                     ).images
 
-            print("Here at 320")
             batch_overview_paths = []
             batch_input_image_paths = []
             batch_edited_image_paths = []
@@ -238,7 +236,6 @@ def eval_automatic(baseline_name):
                 batch_input_image_paths.append(input_image_path)
                 batch_edited_image_paths.append(edited_image_path)
 
-            print("Here at 357")
             for batch_sample_idx in tqdm(range(len(batch_input_images)), desc="Processing batches for wandb"):
                 # Retrieve saved paths and other data for this sample
                 overview_path = batch_overview_paths[batch_sample_idx]
