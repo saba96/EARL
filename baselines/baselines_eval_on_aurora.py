@@ -70,17 +70,53 @@ def eval_automatic(baseline_name):
         from diffusers import StableDiffusionInstructPix2PixPipeline, EulerAncestralDiscreteScheduler
         model_id = "timbrooks/instruct-pix2pix"
 
+        pipeline = StableDiffusionInstructPix2PixPipeline.from_pretrained(
+                    model_id,
+                    torch_dtype=torch.float16, 
+                    safety_checker=None
+                    ).to("cuda")
+        pipeline.scheduler = EulerAncestralDiscreteScheduler.from_config(
+            pipeline.scheduler.config
+        )
+
     elif baseline == "MagicBrush":
         from diffusers import StableDiffusionInstructPix2PixPipeline, EulerAncestralDiscreteScheduler
         model_id = "vinesmsuic/magicbrush-paper"
+
+        pipeline = StableDiffusionInstructPix2PixPipeline.from_pretrained(
+                    model_id,
+                    torch_dtype=torch.float16, 
+                    safety_checker=None
+                    ).to("cuda")
+        pipeline.scheduler = EulerAncestralDiscreteScheduler.from_config(
+            pipeline.scheduler.config
+        )
 
     elif baseline == "InstructPix2Pix_XL":
         from diffusers import StableDiffusionXLInstructPix2PixPipeline, EulerAncestralDiscreteScheduler
         model_id = "diffusers/sdxl-instructpix2pix-768"
 
+        pipeline = StableDiffusionXLInstructPix2PixPipeline.from_pretrained(
+                    model_id,
+                    torch_dtype=torch.float16, 
+                    safety_checker=None
+                    ).to("cuda")
+        pipeline.scheduler = EulerAncestralDiscreteScheduler.from_config(
+            pipeline.scheduler.config
+        )
+
     elif baseline == "MagicBrush_XL":
         from diffusers import StableDiffusionXLInstructPix2PixPipeline, EulerAncestralDiscreteScheduler
         model_id = "vinesmsuic/magicbrush-paper"
+
+        pipeline = StableDiffusionXLInstructPix2PixPipeline.from_pretrained(
+                    model_id,
+                    torch_dtype=torch.float16, 
+                    safety_checker=None
+                    ).to("cuda")
+        pipeline.scheduler = EulerAncestralDiscreteScheduler.from_config(
+            pipeline.scheduler.config
+        )
 
     elif baseline == "Omnigen":
         from diffusers import OmniGenPipeline
@@ -94,9 +130,19 @@ def eval_automatic(baseline_name):
     elif baseline == "Aurora":
         from diffusers import StableDiffusionInstructPix2PixPipeline, EulerAncestralDiscreteScheduler
         model_id = "McGill-NLP/AURORA"
+
+        pipeline = StableDiffusionInstructPix2PixPipeline.from_pretrained(
+                model_id, 
+                torch_dtype=torch.float16, 
+                safety_checker=None).to("cuda")
     elif baseline == "Aurora_XL":
         from diffusers import StableDiffusionXLInstructPix2PixPipeline, EulerAncestralDiscreteScheduler
         model_id = "McGill-NLP/AURORA"
+
+        pipeline = StableDiffusionXLInstructPix2PixPipeline.from_pretrained(
+                    model_id, 
+                    torch_dtype=torch.float16, 
+                    safety_checker=None).to("cuda")
 
     if baseline in ["InstructPix2Pix_XL", "MagicBrush_XL", "Aurora_XL", "InstructPix2Pix", "MagicBrush", "Aurora"]:
         images_dict = {"All_Sizes": [img for img_list in image_dict.values() for img in img_list]}
@@ -143,48 +189,24 @@ def eval_automatic(baseline_name):
                 batch_sources = sources[i:i + BATCH_SIZE]
 
             if baseline in ["InstructPix2Pix", "MagicBrush"]:
-                pipeline = StableDiffusionInstructPix2PixPipeline.from_pretrained(
-                    model_id,
-                    torch_dtype=torch.float16, 
-                    safety_checker=None
-                    ).to("cuda")
-                pipeline.scheduler = EulerAncestralDiscreteScheduler.from_config(
-                    pipeline.scheduler.config
-                )
                 batch_edited_images = pipeline(
                     prompt=batch_edit_instructions, 
                     image=batch_input_images
                 ).images
 
             elif baseline in ["InstructPix2Pix_XL", "MagicBrush_XL"]:
-                pipeline = StableDiffusionXLInstructPix2PixPipeline.from_pretrained(
-                    model_id,
-                    torch_dtype=torch.float16, 
-                    safety_checker=None
-                    ).to("cuda")
-                pipeline.scheduler = EulerAncestralDiscreteScheduler.from_config(
-                    pipeline.scheduler.config
-                )
                 batch_edited_images = pipeline(
                     prompt=batch_edit_instructions, 
                     image=batch_input_images
                 ).images
 
             elif baseline == "Aurora":
-                pipeline = StableDiffusionInstructPix2PixPipeline.from_pretrained(
-                    model_id, 
-                    torch_dtype=torch.float16, 
-                    safety_checker=None).to("cuda")
                 batch_edited_images = pipeline(
                     prompt=batch_edit_instructions, 
                     image=batch_input_images
                 ).images
 
             elif baseline == "Aurora_XL":
-                pipeline = StableDiffusionXLInstructPix2PixPipeline.from_pretrained(
-                    model_id, 
-                    torch_dtype=torch.float16, 
-                    safety_checker=None).to("cuda")
                 batch_edited_images = pipeline(
                     prompt=batch_edit_instructions, 
                     image=batch_input_images
