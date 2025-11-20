@@ -138,9 +138,8 @@ The current configs in [`rl/configs/`](./rl/configs/) are sample configurations.
 
 ## Evaluation
 
-The evaluation code and scripts will be released soon. This will include:
-- Evaluation metrics and visualization tools
-- Support for multiple datasets (magicBrush, VisMin, OmniEdit, Aurora-Ag, I2EBench)
+See README file inside `baselines/` directory.
+
 
 ## Citation
 
