@@ -16,7 +16,7 @@ To get started, follow these steps:
 
 ```bash
 # Clone the repository
-git clone https://github.com/saba96/EARL.git
+git clone https://github.com/mair-lab/EARL
 cd EARL
 ```
 ### Step 2

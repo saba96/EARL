@@ -28,7 +28,7 @@ This README provides an overview of how to prepare and tokenize data for EARL im
 ## Prerequisites - Installation
 
 ```bash
-git clone https://github.com/saba96/EARL.git
+git clone https://github.com/mair-lab/EARL
 cd EARL
 python -m venv /path/to/envs/EARL
 . /path/to/envs/EARL/bin/activate
