@@ -138,7 +138,7 @@ The current configs in [`rl/configs/`](./rl/configs/) are sample configurations.
 
 ## Evaluation
 
-See README file inside `baselines/` directory.
+See README file inside [`baselines/`](baselines/) directory.
 
 
 ## Citation
